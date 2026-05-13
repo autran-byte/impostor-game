@@ -1,134 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMPOSTOR — O Jogo</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>IMPOSTOR — O Jogo</title>
+
+  <link rel="icon" href="data:," />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<!-- HOME -->
-<div id="home-screen" class="screen active">
-  <div class="logo">IMPOSTOR<span>O Jogo das Palavras Secretas</span></div>
-  <div class="sep"></div>
-  <p style="color:var(--muted);text-align:center;max-width:400px;line-height:1.6;margin-bottom:2rem;font-size:0.95rem">
-    Um jogador nao sabe a palavra senha. Descubra quem e o impostor &mdash; ou o seja.
-  </p>
-  <button class="btn btn-primary" id="btn-go-setup">Comecar Jogo</button>
-</div>
+  <!-- HOME -->
+  <div id="home-screen" class="screen active">
+    <div class="logo">
+      IMPOSTOR
+      <span>O Jogo das Palavras Secretas</span>
+    </div>
 
-<!-- SETUP -->
-<div id="setup-screen" class="screen">
-  <div class="panel w100">
-    <div class="panel-title">Configuracao</div>
-    <div class="setup-grid">
-      <div>
-        <label>Jogadores</label>
-        <div class="player-list" id="player-list"></div>
-        <div class="add-row mt1">
-          <input type="text" id="new-player-name" placeholder="Nome do jogador...">
-<button class="btn btn-secondary btn-sm" id="btn-add-player">+ Adicionar</button>
+    <div class="sep"></div>
+
+    <p class="home-description">
+      Um jogador não sabe a palavra senha. Descubra quem é o impostor — ou o seja.
+    </p>
+
+    <button class="btn btn-primary" id="btn-go-setup">
+      Começar Jogo
+    </button>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen" class="screen">
+    <div class="panel w100">
+      <div class="panel-title">Configuração</div>
+
+      <div class="setup-grid">
+        <div>
+          <label for="new-player-name">Jogadores</label>
+
+          <div class="player-list" id="player-list"></div>
+
+          <div class="add-row mt1">
+            <input
+              type="text"
+              id="new-player-name"
+              placeholder="Nome do jogador..."
+              autocomplete="off"
+            />
+
+            <button class="btn btn-secondary btn-sm" id="btn-add-player">
+              + Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="impostor-count">Número de Impostores</label>
+
+          <input
+            type="number"
+            id="impostor-count"
+            value="1"
+            min="1"
+            max="3"
+          />
         </div>
       </div>
-      <div>
-        <label>Nr de Impostores</label>
-        <input type="number" id="impostor-count" value="1" min="1" max="3">
+
+      <div class="flex gap mt2 setup-actions">
+        <button class="btn btn-secondary" id="btn-back-home">
+          Voltar
+        </button>
+
+        <button class="btn btn-primary" id="btn-go-deck-select">
+          Escolher Baralho &rarr;
+        </button>
       </div>
-      <div>
-        <label>Escolha o Baralho</label>
-        <div class="deck-grid" id="deck-grid"></div>
+    </div>
+  </div>
+
+  <!-- DECK SELECT -->
+  <div id="deck-select-screen" class="screen">
+    <div class="deck-select-wrap">
+      <div class="deck-select-header">
+        <div class="deck-select-kicker">Escolha o baralho</div>
+        <div class="deck-select-title" id="deck-select-title">Baralhos</div>
+        <div class="deck-select-counter" id="deck-select-counter">Deck 1 de 1</div>
+      </div>
+
+      <div class="deck-stack" id="deck-stack"></div>
+
+      <div class="deck-select-hint">
+        Toque no card para selecionar ou arraste para ver o próximo.
+      </div>
+
+      <div class="flex gap mt2 deck-select-actions">
+        <button class="btn btn-secondary" id="btn-back-setup">
+          &larr; Voltar
+        </button>
+
+        <button class="btn btn-primary" id="btn-next-deck">
+          Próximo Baralho &rarr;
+        </button>
       </div>
     </div>
-    <div class="flex gap mt2" style="justify-content:flex-end">
-      <button class="btn btn-secondary" id="btn-back-home">Voltar</button>
-<button class="btn btn-primary" id="btn-start-game">Distribuir Cartas &rarr;</button>
+  </div>
+
+  <!-- REVEAL -->
+  <div id="reveal-screen" class="screen">
+    <div class="reveal-header">
+      <div class="reveal-kicker">Carta de</div>
+      <div class="reveal-player-name" id="reveal-player-name"></div>
+    </div>
+
+    <div class="progress-dots" id="progress-dots"></div>
+
+    <div class="card-stage" id="card-stage"></div>
+
+    <div class="swipe-hint" id="swipe-hint">
+      &larr;&nbsp; arraste para continuar &nbsp;&rarr;
+    </div>
+
+    <p class="hint" id="reveal-hint">
+      Toque na carta para ver sua palavra
+    </p>
+  </div>
+
+  <!-- PASSWORD CARD -->
+  <div id="password-screen" class="screen">
+    <div class="password-header">
+      <div class="password-title">Todos viram suas cartas</div>
+      <div class="password-subtitle">A senha está guardada aqui &darr;</div>
+    </div>
+
+    <div class="password-card-wrap">
+      <div class="password-card" id="password-card">
+        <div class="password-card-logo">?</div>
+        <div class="password-card-hint">Toque para revelar</div>
+      </div>
+    </div>
+
+    <div class="flex gap mt2 password-actions">
+      <button class="btn btn-secondary" id="btn-start-round">
+        Começar Rodada &rarr;
+      </button>
+    </div>
+
+    <p class="hint mt1">
+      Revele a senha quando o jogo acabar
+    </p>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="screen">
+    <div class="game-info">
+      <div class="game-round" id="game-round-label"></div>
+      <div class="game-category" id="game-category-label"></div>
+    </div>
+
+    <div class="turn-list" id="turn-list"></div>
+
+    <div class="flex gap mt2 game-actions">
+      <button class="btn btn-secondary" id="btn-prev-turn" style="display:none">
+        &larr; Volta
+      </button>
+
+      <button class="btn btn-primary" id="btn-next-turn">
+        Próximo &rarr;
+      </button>
+
+      <button class="btn btn-secondary" id="btn-show-password">
+        Revelar Senha
+      </button>
+    </div>
+
+    <p class="hint mt1">
+      Cada jogador diz uma dica sobre a palavra sem revelá-la
+    </p>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-screen" class="screen">
+    <div class="result-box">
+      <div class="result-verdict" id="result-verdict"></div>
+      <div class="result-sub" id="result-sub"></div>
+
+      <div class="result-reveal">
+        <div class="rl">A palavra secreta era</div>
+        <div class="rv word-was" id="result-word"></div>
+
+        <div class="sep result-sep"></div>
+
+        <div class="rl">O(s) impostor(es) era(m)</div>
+        <div class="rv impostor-was" id="result-impostor"></div>
+      </div>
+
+      <div class="flex gap result-actions">
+        <button class="btn btn-secondary" id="btn-reset-game">
+          Menu
+        </button>
+
+        <button class="btn btn-primary" id="btn-play-again">
+          Jogar Novamente &#8635;
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- REVEAL -->
-<div id="reveal-screen" class="screen">
-  <div class="reveal-header">
-    <div style="font-size:0.78rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:0.3rem">Carta de</div>
-    <div class="reveal-player-name" id="reveal-player-name"></div>
-  </div>
-  <div class="progress-dots" id="progress-dots"></div>
-  <div class="card-stage" id="card-stage"></div>
-  <div class="swipe-hint" id="swipe-hint">&larr;&nbsp; arraste para continuar &nbsp;&rarr;</div>
-  <p class="hint" id="reveal-hint" style="margin-top:0.75rem">Toque na carta para ver sua palavra</p>
-</div>
+  <!-- CONFIRM PASSWORD POPUP -->
+  <div class="popup-overlay" id="popup-overlay">
+    <div class="popup-box">
+      <div class="popup-title">Revelar a senha?</div>
+      <div class="popup-sub">Todos os jogadores devem estar prontos</div>
 
-<!-- PASSWORD CARD (shown after all players revealed) -->
-<div id="password-screen" class="screen">
-  <div style="text-align:center;margin-bottom:1.5rem">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.15em;color:var(--muted)">Todos viram suas cartas</div>
-    <div style="font-size:0.85rem;color:var(--muted);margin-top:0.35rem">A senha esta guardada aqui &darr;</div>
-  </div>
+      <div class="popup-btns">
+        <button class="popup-no" id="btn-popup-no">
+          Não
+        </button>
 
-  <div class="password-card-wrap">
-    <div class="password-card" id="password-card">
-      <div class="password-card-logo">?</div>
-      <div class="password-card-hint">Toque para revelar</div>
+        <button class="popup-yes" id="btn-popup-yes">
+          Sim
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="flex gap mt2" style="justify-content:center;flex-wrap:wrap">
-    <button class="btn btn-secondary" id="btn-start-round">Comecar Rodada &rarr;</button>
-  </div>
-  <p class="hint mt1">Revele a senha quando o jogo acabar</p>
-</div>
+  <!-- CONFIRM DECK POPUP -->
+  <div class="popup-overlay" id="deck-confirm-overlay">
+    <div class="popup-box">
+      <div class="popup-title" id="deck-confirm-title">
+        Escolher este baralho?
+      </div>
 
-<!-- GAME -->
-<div id="game-screen" class="screen">
-  <div class="game-info">
-    <div class="game-round" id="game-round-label"></div>
-    <div class="game-category" id="game-category-label"></div>
-  </div>
-  <div class="turn-list" id="turn-list"></div>
-  <div class="flex gap mt2" style="justify-content:center;flex-wrap:wrap">
-    <button class="btn btn-secondary" id="btn-prev-turn" style="display:none">&larr; Volta</button>
-<button class="btn btn-primary" id="btn-next-turn">Proximo &rarr;</button>
-<button class="btn btn-secondary" id="btn-show-password">Revelar Senha</button>
-  </div>
-  <p class="hint mt1">Cada jogador diz uma dica sobre a palavra sem revela-la</p>
-</div>
+      <div class="popup-sub" id="deck-confirm-sub">
+        Confirme para distribuir as cartas.
+      </div>
 
-<!-- RESULT -->
-<div id="result-screen" class="screen">
-  <div class="result-box">
-    <div class="result-verdict" id="result-verdict"></div>
-    <div class="result-sub" id="result-sub"></div>
-    <div class="result-reveal">
-      <div class="rl">A palavra secreta era</div>
-      <div class="rv word-was" id="result-word"></div>
-      <div class="sep" style="margin:1rem auto"></div>
-      <div class="rl">O(s) impostor(es) era(m)</div>
-      <div class="rv impostor-was" id="result-impostor"></div>
-    </div>
-    <div class="flex gap" style="justify-content:center;flex-wrap:wrap">
-      <button class="btn btn-secondary" id="btn-reset-game">Menu</button>
-<button class="btn btn-primary" id="btn-play-again">Jogar Novamente &#8635;</button>
+      <div class="popup-btns">
+        <button class="popup-no" id="btn-deck-confirm-no">
+          Não
+        </button>
+
+        <button class="popup-yes" id="btn-deck-confirm-yes">
+          Sim
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- CONFIRM POPUP -->
-<div class="popup-overlay" id="popup-overlay">
-  <div class="popup-box">
-    <div class="popup-title">Revelar a senha?</div>
-    <div class="popup-sub">Todos os jogadores devem estar prontos</div>
-    <div class="popup-btns">
-      <button class="popup-no" id="btn-popup-no">N&atilde;o</button>
-<button class="popup-yes" id="btn-popup-yes">Sim</button>
-    </div>
-  </div>
-</div>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

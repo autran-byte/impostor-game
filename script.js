@@ -8,135 +8,16 @@ const supabaseClient = supabase.createClient(
 
 /* =============================================
    FALLBACK LOCAL
-   usado se o Supabase falhar
 ============================================= */
 const LOCAL_DECKS = [
-  {
-    id: "animais",
-    name: "Animais",
-    icon: "🦁",
-    words: [
-      "Elefante",
-      "Tubarao",
-      "Papagaio",
-      "Coruja",
-      "Cobra",
-      "Gorila",
-      "Pinguim",
-      "Camelo",
-      "Hipopotamo",
-      "Pantera"
-    ]
-  },
-  {
-    id: "comidas",
-    name: "Comidas",
-    icon: "🍕",
-    words: [
-      "Pizza",
-      "Sushi",
-      "Lasanha",
-      "Hamburguer",
-      "Tapioca",
-      "Feijoada",
-      "Risoto",
-      "Ramen",
-      "Brigadeiro",
-      "Pastel"
-    ]
-  },
-  {
-    id: "esportes",
-    name: "Esportes",
-    icon: "⚽",
-    words: [
-      "Futebol",
-      "Natacao",
-      "Judo",
-      "Volei",
-      "Ciclismo",
-      "Boxe",
-      "Basquete",
-      "Tenis",
-      "Polo Aquatico",
-      "Esgrima"
-    ]
-  },
-  {
-    id: "filmes",
-    name: "Filmes e Series",
-    icon: "🎬",
-    words: [
-      "Matrix",
-      "Titanic",
-      "Breaking Bad",
-      "Avatar",
-      "Inception",
-      "Friends",
-      "Stranger Things",
-      "Interstellar",
-      "Coco",
-      "Parasita"
-    ]
-  },
-  {
-    id: "profissoes",
-    name: "Profissoes",
-    icon: "💼",
-    words: [
-      "Astronauta",
-      "Cirurgiao",
-      "Arqueologo",
-      "Diplomata",
-      "Sommelier",
-      "Mergulhador",
-      "Relojoeiro",
-      "Ilusionista",
-      "Cartografo",
-      "Chocolatier"
-    ]
-  },
-  {
-    id: "lugares",
-    name: "Lugares",
-    icon: "🌍",
-    words: [
-      "Amazonia",
-      "Dubai",
-      "Antartida",
-      "Veneza",
-      "Toquio",
-      "Machu Picchu",
-      "Las Vegas",
-      "Islandia",
-      "Maldivas",
-      "Petra"
-    ]
-  },
-  {
-    id: "objetos",
-    name: "Objetos",
-    icon: "🔑",
-    words: [
-      "Telescopio",
-      "Bussola",
-      "Metronomo",
-      "Caleidoscopio",
-      "Sextante",
-      "Termometro",
-      "Periscopio",
-      "Abajur",
-      "Relogio de Sol",
-      "Pendulo"
-    ]
-  },
-  {
-    id: "custom",
-    name: "Personalizado",
-    icon: "✏️",
-    words: [],
-    custom: true
-  }
+  { id: "animais", name: "Animais", icon: "🦁", words: ["Elefante", "Tubarao", "Papagaio", "Coruja", "Cobra", "Gorila", "Pinguim", "Camelo", "Hipopotamo", "Pantera"] },
+  { id: "comidas", name: "Comidas", icon: "🍕", words: ["Pizza", "Sushi", "Lasanha", "Hamburguer", "Tapioca", "Feijoada", "Risoto", "Ramen", "Brigadeiro", "Pastel"] },
+  { id: "esportes", name: "Esportes", icon: "⚽", words: ["Futebol", "Natacao", "Judo", "Volei", "Ciclismo", "Boxe", "Basquete", "Tenis", "Polo Aquatico", "Esgrima"] },
+  { id: "filmes", name: "Filmes e Series", icon: "🎬", words: ["Matrix", "Titanic", "Breaking Bad", "Avatar", "Inception", "Friends", "Stranger Things", "Interstellar", "Coco", "Parasita"] },
+  { id: "profissoes", name: "Profissoes", icon: "💼", words: ["Astronauta", "Cirurgiao", "Arqueologo", "Diplomata", "Sommelier", "Mergulhador", "Relojoeiro", "Ilusionista", "Cartografo", "Chocolatier"] },
+  { id: "lugares", name: "Lugares", icon: "🌍", words: ["Amazonia", "Dubai", "Antartida", "Veneza", "Toquio", "Machu Picchu", "Las Vegas", "Islandia", "Maldivas", "Petra"] },
+  { id: "objetos", name: "Objetos", icon: "🔑", words: ["Telescopio", "Bussola", "Metronomo", "Caleidoscopio", "Sextante", "Termometro", "Periscopio", "Abajur", "Relogio de Sol", "Pendulo"] },
+  { id: "custom", name: "Personalizado", icon: "✏️", words: [], custom: true }
 ];
 
 let DECKS = [];
@@ -149,9 +30,11 @@ const state = {
   players: [],
   impostorCount: 1,
   selectedDeck: null,
+  pendingDeckId: null,
   assignments: [],
   currentReveal: 0,
-  currentTurn: 0
+  currentTurn: 0,
+  currentDeckIndex: 0
 };
 
 const SWIPE_THRESHOLD = 85;
@@ -163,6 +46,15 @@ let drag = {
   startY: 0,
   curX: 0,
   revealed: false
+};
+
+let deckDrag = {
+  active: false,
+  startX: 0,
+  startY: 0,
+  curX: 0,
+  curY: 0,
+  moved: false
 };
 
 /* =============================================
@@ -193,7 +85,7 @@ async function init() {
     toast("Falha ao carregar Supabase. Usando baralhos locais.");
   }
 
-  renderDecks();
+  renderDeckSelectionStack();
 }
 
 function setupEventListeners() {
@@ -201,7 +93,9 @@ function setupEventListeners() {
   const btnAddPlayer = document.getElementById("btn-add-player");
   const newPlayerInput = document.getElementById("new-player-name");
   const btnBackHome = document.getElementById("btn-back-home");
-  const btnStartGame = document.getElementById("btn-start-game");
+  const btnGoDeckSelect = document.getElementById("btn-go-deck-select");
+  const btnBackSetup = document.getElementById("btn-back-setup");
+  const btnNextDeck = document.getElementById("btn-next-deck");
   const passwordCard = document.getElementById("password-card");
   const btnStartRound = document.getElementById("btn-start-round");
   const btnPrevTurn = document.getElementById("btn-prev-turn");
@@ -212,6 +106,9 @@ function setupEventListeners() {
   const btnPopupNo = document.getElementById("btn-popup-no");
   const btnPopupYes = document.getElementById("btn-popup-yes");
   const popupOverlay = document.getElementById("popup-overlay");
+  const btnDeckConfirmNo = document.getElementById("btn-deck-confirm-no");
+  const btnDeckConfirmYes = document.getElementById("btn-deck-confirm-yes");
+  const deckConfirmOverlay = document.getElementById("deck-confirm-overlay");
 
   if (btnGoSetup) {
     btnGoSetup.addEventListener("click", () => showScreen("setup-screen"));
@@ -233,8 +130,16 @@ function setupEventListeners() {
     btnBackHome.addEventListener("click", () => showScreen("home-screen"));
   }
 
-  if (btnStartGame) {
-    btnStartGame.addEventListener("click", startGame);
+  if (btnGoDeckSelect) {
+    btnGoDeckSelect.addEventListener("click", goToDeckSelection);
+  }
+
+  if (btnBackSetup) {
+    btnBackSetup.addEventListener("click", () => showScreen("setup-screen"));
+  }
+
+  if (btnNextDeck) {
+    btnNextDeck.addEventListener("click", advanceDeckSelection);
   }
 
   if (passwordCard) {
@@ -262,7 +167,7 @@ function setupEventListeners() {
   }
 
   if (btnPlayAgain) {
-    btnPlayAgain.addEventListener("click", startGame);
+    btnPlayAgain.addEventListener("click", restartSameSetup);
   }
 
   if (btnPopupNo) {
@@ -280,11 +185,35 @@ function setupEventListeners() {
       }
     });
   }
+
+  if (btnDeckConfirmNo) {
+    btnDeckConfirmNo.addEventListener("click", closeDeckConfirmPopup);
+  }
+
+  if (btnDeckConfirmYes) {
+    btnDeckConfirmYes.addEventListener("click", confirmDeckSelection);
+  }
+
+  if (deckConfirmOverlay) {
+    deckConfirmOverlay.addEventListener("click", event => {
+      if (event.target === deckConfirmOverlay) {
+        closeDeckConfirmPopup();
+      }
+    });
+  }
 }
 
 function validateSupabaseClient() {
   if (typeof supabase === "undefined") {
     throw new Error("Biblioteca do Supabase não foi carregada.");
+  }
+
+  if (typeof APP_CONFIG === "undefined") {
+    throw new Error("Arquivo config.js não foi carregado.");
+  }
+
+  if (!APP_CONFIG.SUPABASE_URL || !APP_CONFIG.SUPABASE_PUBLISHABLE_KEY) {
+    throw new Error("Configuração do Supabase incompleta.");
   }
 
   if (!supabaseClient) {
@@ -303,13 +232,15 @@ function cloneDecks(decks) {
    DECK LOADING
 ============================================= */
 function renderDeckLoading(message = "Carregando...") {
-  const grid = document.getElementById("deck-grid");
+  const stack = document.getElementById("deck-stack");
 
-  if (!grid) return;
+  if (!stack) return;
 
-  grid.innerHTML = `
-    <div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:1rem;">
-      ${message}
+  stack.innerHTML = `
+    <div class="deck-stack-card is-current">
+      <div class="deck-stack-icon">⌛</div>
+      <div class="deck-stack-name">Carregando</div>
+      <div class="deck-stack-subtitle">${message}</div>
     </div>
   `;
 }
@@ -363,69 +294,255 @@ async function loadDecksFromSupabase() {
   console.log("DECKS montado:", DECKS);
 }
 
-function renderDecks() {
-  const grid = document.getElementById("deck-grid");
+/* =============================================
+   DECK SELECTION
+============================================= */
+function goToDeckSelection() {
+  const players = state.players;
+  const impostors = parseInt(document.getElementById("impostor-count").value || 1);
 
-  if (!grid) return;
+  if (players.length < 3) {
+    toast("Mínimo 3 jogadores");
+    return;
+  }
 
-  grid.innerHTML = "";
+  if (impostors >= players.length) {
+    toast("Impostores demais!");
+    return;
+  }
+
+  if (!Array.isArray(DECKS) || DECKS.length === 0) {
+    toast("Nenhum baralho disponível.");
+    return;
+  }
+
+  state.impostorCount = impostors;
+  state.currentDeckIndex = normalizeIndex(state.currentDeckIndex);
+
+  renderDeckSelectionStack();
+  showScreen("deck-select-screen");
+}
+
+function renderDeckSelectionStack() {
+  const stack = document.getElementById("deck-stack");
+  const title = document.getElementById("deck-select-title");
+  const counter = document.getElementById("deck-select-counter");
+
+  if (!stack) return;
+
+  stack.innerHTML = "";
 
   if (!Array.isArray(DECKS) || DECKS.length === 0) {
     renderDeckLoading("Nenhum baralho encontrado.");
     return;
   }
 
-  DECKS.forEach(deck => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "deck-card";
-    card.dataset.id = deck.id;
+  const currentIndex = normalizeIndex(state.currentDeckIndex);
 
-    card.addEventListener("click", () => selectDeck(deck.id));
+  const visibleCards = [0, 1, 2]
+    .map(offset => DECKS[normalizeIndex(currentIndex + offset)])
+    .filter(Boolean);
 
-    const icon = document.createElement("div");
-    icon.className = "deck-icon";
-    icon.textContent = deck.icon;
+  [...visibleCards].reverse().forEach((deck, reverseIndex) => {
+    const visualIndex = visibleCards.length - 1 - reverseIndex;
+    const card = createDeckCard(deck, visualIndex);
 
-    const name = document.createElement("div");
-    name.className = "deck-name";
-    name.textContent = deck.name;
+    stack.appendChild(card);
 
-    const count = document.createElement("div");
-    count.className = "deck-count";
-    count.textContent = deck.custom
-      ? "Sua escolha"
-      : `${deck.words.length} palavras`;
-
-    card.appendChild(icon);
-    card.appendChild(name);
-    card.appendChild(count);
-
-    grid.appendChild(card);
+    if (visualIndex === 0) {
+      wireDeckSwipe(card);
+    }
   });
+
+  const currentDeck = DECKS[currentIndex];
+
+  if (title && currentDeck) {
+    title.textContent = currentDeck.name;
+  }
+
+  if (counter) {
+    counter.textContent = `Deck ${currentIndex + 1} de ${DECKS.length}`;
+  }
 
   console.info(`Fonte dos baralhos: ${dataSource}`);
 }
 
-function selectDeck(id) {
-  const deck = DECKS.find(d => d.id === id);
+function createDeckCard(deck, visualIndex) {
+  const card = document.createElement("div");
+  card.className = "deck-stack-card";
+
+  if (visualIndex === 0) {
+    card.classList.add("is-current");
+  }
+
+  if (visualIndex === 1) {
+    card.classList.add("is-back-1");
+  }
+
+  if (visualIndex === 2) {
+    card.classList.add("is-back-2");
+  }
+
+  const countText = deck.custom ? "Sua escolha" : `${deck.words.length} palavras`;
+
+  const subtitleText = deck.custom
+    ? "Crie uma palavra secreta na hora para uma rodada personalizada."
+    : "Toque para escolher este baralho ou arraste para ver outro.";
+
+  card.innerHTML = `
+    <div class="deck-stack-icon">${escapeHtml(deck.icon || "🃏")}</div>
+    <div class="deck-stack-name">${escapeHtml(deck.name)}</div>
+    <div class="deck-stack-count">${escapeHtml(countText)}</div>
+    <div class="deck-stack-subtitle">${escapeHtml(subtitleText)}</div>
+  `;
+
+  if (visualIndex === 0) {
+    card.addEventListener("click", () => {
+      if (deckDrag.moved) return;
+      askConfirmDeck(deck.id);
+    });
+  }
+
+  return card;
+}
+
+function wireDeckSwipe(card) {
+  card.addEventListener("pointerdown", event => {
+    deckDrag.active = true;
+    deckDrag.startX = event.clientX;
+    deckDrag.startY = event.clientY;
+    deckDrag.curX = 0;
+    deckDrag.curY = 0;
+    deckDrag.moved = false;
+
+    card.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }, { passive: false });
+
+  card.addEventListener("pointermove", event => {
+    if (!deckDrag.active) return;
+
+    deckDrag.curX = event.clientX - deckDrag.startX;
+    deckDrag.curY = event.clientY - deckDrag.startY;
+
+    if (Math.abs(deckDrag.curX) + Math.abs(deckDrag.curY) > 12) {
+      deckDrag.moved = true;
+    }
+
+    const tilt = (deckDrag.curX / 290) * MAX_TILT;
+
+    card.style.transition = "none";
+    card.style.transform = `translate(${deckDrag.curX}px, ${deckDrag.curY * 0.25}px) rotate(${tilt}deg)`;
+
+    event.preventDefault();
+  }, { passive: false });
+
+  card.addEventListener("pointerup", () => {
+    if (!deckDrag.active) return;
+
+    deckDrag.active = false;
+
+    if (Math.abs(deckDrag.curX) >= SWIPE_THRESHOLD) {
+      const dir = deckDrag.curX > 0 ? 1 : -1;
+
+      card.style.transition = "transform 0.35s ease, opacity 0.35s ease";
+      card.style.transform = `translate(${dir * (window.innerWidth + 320)}px, -15px) rotate(${dir * MAX_TILT}deg)`;
+      card.style.opacity = "0";
+
+      setTimeout(() => {
+        advanceDeckSelection();
+
+        setTimeout(() => {
+          deckDrag.moved = false;
+        }, 50);
+      }, 260);
+    } else {
+      card.style.transition = "transform 0.25s ease";
+      card.style.transform = "none";
+
+      setTimeout(() => {
+        deckDrag.moved = false;
+      }, 80);
+    }
+  });
+
+  card.addEventListener("pointercancel", () => {
+    deckDrag.active = false;
+    card.style.transition = "transform 0.25s ease";
+    card.style.transform = "none";
+
+    setTimeout(() => {
+      deckDrag.moved = false;
+    }, 80);
+  });
+}
+
+function advanceDeckSelection() {
+  state.currentDeckIndex = normalizeIndex(state.currentDeckIndex + 1);
+  renderDeckSelectionStack();
+}
+
+function askConfirmDeck(deckId) {
+  const deck = DECKS.find(item => item.id === deckId);
 
   if (!deck) {
     toast("Baralho não encontrado.");
     return;
   }
 
-  state.selectedDeck = id;
+  state.pendingDeckId = deckId;
 
-  document.querySelectorAll(".deck-card").forEach(card => {
-    card.classList.remove("selected");
-  });
+  const title = document.getElementById("deck-confirm-title");
+  const sub = document.getElementById("deck-confirm-sub");
+  const overlay = document.getElementById("deck-confirm-overlay");
 
-  const selectedCard = document.querySelector(`.deck-card[data-id="${id}"]`);
-
-  if (selectedCard) {
-    selectedCard.classList.add("selected");
+  if (title) {
+    title.textContent = `Escolher "${deck.name}"?`;
   }
+
+  if (sub) {
+    sub.textContent = deck.custom
+      ? "Você vai criar a palavra secreta na próxima etapa."
+      : `${deck.words.length} palavras disponíveis.`;
+  }
+
+  if (overlay) {
+    overlay.classList.add("show");
+  }
+}
+
+function closeDeckConfirmPopup() {
+  state.pendingDeckId = null;
+
+  const overlay = document.getElementById("deck-confirm-overlay");
+
+  if (overlay) {
+    overlay.classList.remove("show");
+  }
+}
+
+function confirmDeckSelection() {
+  if (!state.pendingDeckId) {
+    toast("Nenhum baralho selecionado.");
+    return;
+  }
+
+  state.selectedDeck = state.pendingDeckId;
+  state.pendingDeckId = null;
+
+  const overlay = document.getElementById("deck-confirm-overlay");
+
+  if (overlay) {
+    overlay.classList.remove("show");
+  }
+
+  startGame();
+}
+
+function normalizeIndex(index) {
+  if (!DECKS.length) return 0;
+
+  return ((index % DECKS.length) + DECKS.length) % DECKS.length;
 }
 
 /* =============================================
@@ -444,6 +561,7 @@ function addPlayer() {
 
   state.players.push(name);
   inp.value = "";
+
   renderPlayers();
 }
 
@@ -516,11 +634,11 @@ function startGame() {
   }
 
   if (deck.custom) {
-    const word = prompt("Digite a palavra secreta:");
+    const customWord = prompt("Digite a palavra secreta:");
 
-    if (!word) return;
+    if (!customWord) return;
 
-    deck.words = [word.trim()];
+    deck.words = [customWord.trim()];
   }
 
   if (!deck.words || deck.words.length === 0) {
@@ -546,6 +664,15 @@ function startGame() {
   state.currentTurn = 0;
 
   showReveal();
+}
+
+function restartSameSetup() {
+  if (!state.selectedDeck) {
+    showScreen("setup-screen");
+    return;
+  }
+
+  startGame();
 }
 
 /* =============================================
@@ -574,7 +701,7 @@ function renderRevealCard() {
   document.getElementById("progress-dots").innerHTML = state.assignments
     .map((_, index) =>
       '<div class="dot ' +
-        (index < state.currentReveal ? "done" : index === state.currentReveal ? "active" : "") +
+      (index < state.currentReveal ? "done" : index === state.currentReveal ? "active" : "") +
       '"></div>'
     )
     .join("");
@@ -587,6 +714,7 @@ function renderRevealCard() {
 
   const emoji = isImpostor ? "😈" : "🃏";
   const roleLabel = isImpostor ? "⚠️ Você é o Impostor" : "🔒 Palavra Secreta";
+
   const subtitle = isImpostor
     ? "Descubra a senha pescando nas dicas dos outros!"
     : "Baralho: " + assignment.deck + " — Não revele a palavra!";
@@ -599,7 +727,7 @@ function renderRevealCard() {
     '<div class="card-front-content">' +
       '<span class="card-corner tl">' + emoji + "</span>" +
       '<div class="card-role-label">' + roleLabel + "</div>" +
-      '<div class="card-word-text">' + assignment.word + "</div>" +
+      '<div class="card-word-text">' + escapeHtml(assignment.word) + "</div>" +
       '<div class="card-subtitle-text">' + subtitle + "</div>" +
       '<span class="card-corner br">' + emoji + "</span>" +
     "</div>";
@@ -715,6 +843,7 @@ function doReveal() {
   closePopup();
 
   const word = state.assignments[0].realWord;
+
   const impostors = state.assignments
     .filter(assignment => assignment.role === "impostor")
     .map(assignment => assignment.name);
@@ -728,7 +857,6 @@ function doReveal() {
   showScreen("result-screen");
 }
 
-
 /* =============================================
    GAME SCREEN
 ============================================= */
@@ -741,10 +869,17 @@ function showGameScreen() {
 function renderTurns() {
   const players = state.assignments;
 
+  if (!players.length) {
+    toast("Nenhuma rodada ativa.");
+    showScreen("setup-screen");
+    return;
+  }
+
   document.getElementById("game-round-label").textContent = "Rodada de Pistas";
+
   document.getElementById("game-category-label").innerHTML =
     "Baralho: " +
-    players[0].deck +
+    escapeHtml(players[0].deck) +
     " &middot; " +
     players.length +
     " jogadores &middot; " +
@@ -758,7 +893,7 @@ function renderTurns() {
         (index === state.currentTurn ? "active" : index < state.currentTurn ? "done" : "") +
       '">' +
         '<span class="turn-number">' + (index + 1) + "</span>" +
-        '<span class="turn-name">' + player.name + "</span>" +
+        '<span class="turn-name">' + escapeHtml(player.name) + "</span>" +
         '<span class="turn-status">' +
           (index === state.currentTurn ? "🎙️ Sua vez" : index < state.currentTurn ? "✓ Falou" : "") +
         "</span>" +
@@ -808,6 +943,9 @@ function resetGame() {
   state.assignments = [];
   state.currentReveal = 0;
   state.currentTurn = 0;
+  state.selectedDeck = null;
+  state.pendingDeckId = null;
+
   showScreen("home-screen");
 }
 
@@ -826,4 +964,13 @@ function toast(msg) {
   toastTimer = setTimeout(() => {
     el.classList.remove("show");
   }, 2500);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
