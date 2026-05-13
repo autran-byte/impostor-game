@@ -535,6 +535,7 @@ input[type="number"] {
 .card-corner {
   position: absolute;
   font-size: 1.4rem;
+  visibility: hidden;
 }
 
 .card-corner.tl {
