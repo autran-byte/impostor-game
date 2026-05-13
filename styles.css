@@ -141,7 +141,7 @@
   .card-word-style .card-word-text { color: var(--accent); }
   .card-impostor-style .card-word-text { color: var(--accent2); font-style: italic; font-size: 2.9rem; }
   .card-subtitle-text { font-size: 0.78rem; color: var(--muted); margin-top: 1rem; text-align: center; line-height: 1.55; }
-  .card-corner { position: absolute; font-size: 1.4rem; }
+  .card-corner { position: absolute; font-size: 1.4rem; visibility: hidden;}
   .card-corner.tl { top: 1rem; left: 1.1rem; }
   .card-corner.br { bottom: 1rem; right: 1.1rem; }
 
