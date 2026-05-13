@@ -174,6 +174,7 @@ let drag = {
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  setupEventListeners();
   renderDeckLoading("Carregando baralhos...");
 
   try {
@@ -196,6 +197,92 @@ async function init() {
   }
 
   renderDecks();
+}
+
+function setupEventListeners() {
+  const btnGoSetup = document.getElementById("btn-go-setup");
+  const btnAddPlayer = document.getElementById("btn-add-player");
+  const newPlayerInput = document.getElementById("new-player-name");
+  const btnBackHome = document.getElementById("btn-back-home");
+  const btnStartGame = document.getElementById("btn-start-game");
+  const passwordCard = document.getElementById("password-card");
+  const btnStartRound = document.getElementById("btn-start-round");
+  const btnPrevTurn = document.getElementById("btn-prev-turn");
+  const btnNextTurn = document.getElementById("btn-next-turn");
+  const btnShowPassword = document.getElementById("btn-show-password");
+  const btnResetGame = document.getElementById("btn-reset-game");
+  const btnPlayAgain = document.getElementById("btn-play-again");
+  const btnPopupNo = document.getElementById("btn-popup-no");
+  const btnPopupYes = document.getElementById("btn-popup-yes");
+  const popupOverlay = document.getElementById("popup-overlay");
+
+  if (btnGoSetup) {
+    btnGoSetup.addEventListener("click", () => showScreen("setup-screen"));
+  }
+
+  if (btnAddPlayer) {
+    btnAddPlayer.addEventListener("click", addPlayer);
+  }
+
+  if (newPlayerInput) {
+    newPlayerInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        addPlayer();
+      }
+    });
+  }
+
+  if (btnBackHome) {
+    btnBackHome.addEventListener("click", () => showScreen("home-screen"));
+  }
+
+  if (btnStartGame) {
+    btnStartGame.addEventListener("click", startGame);
+  }
+
+  if (passwordCard) {
+    passwordCard.addEventListener("click", askReveal);
+  }
+
+  if (btnStartRound) {
+    btnStartRound.addEventListener("click", showGameScreen);
+  }
+
+  if (btnPrevTurn) {
+    btnPrevTurn.addEventListener("click", prevTurn);
+  }
+
+  if (btnNextTurn) {
+    btnNextTurn.addEventListener("click", nextTurn);
+  }
+
+  if (btnShowPassword) {
+    btnShowPassword.addEventListener("click", showPasswordScreen);
+  }
+
+  if (btnResetGame) {
+    btnResetGame.addEventListener("click", resetGame);
+  }
+
+  if (btnPlayAgain) {
+    btnPlayAgain.addEventListener("click", startGame);
+  }
+
+  if (btnPopupNo) {
+    btnPopupNo.addEventListener("click", closePopup);
+  }
+
+  if (btnPopupYes) {
+    btnPopupYes.addEventListener("click", doReveal);
+  }
+
+  if (popupOverlay) {
+    popupOverlay.addEventListener("click", event => {
+      if (event.target === popupOverlay) {
+        closePopup();
+      }
+    });
+  }
 }
 
 function validateSupabaseClient() {
@@ -362,15 +449,34 @@ function removePlayer(idx) {
 function renderPlayers() {
   const playerList = document.getElementById("player-list");
 
-  playerList.innerHTML = state.players
-    .map((player, index) =>
-      '<div class="player-item">' +
-        '<span class="num">' + (index + 1) + "</span>" +
-        '<span class="name">' + player + "</span>" +
-        '<button class="remove" onclick="removePlayer(' + index + ')">&times;</button>' +
-      "</div>"
-    )
-    .join("");
+  if (!playerList) return;
+
+  playerList.innerHTML = "";
+
+  state.players.forEach((player, index) => {
+    const item = document.createElement("div");
+    item.className = "player-item";
+
+    const number = document.createElement("span");
+    number.className = "num";
+    number.textContent = index + 1;
+
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = player;
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove";
+    removeButton.innerHTML = "&times;";
+    removeButton.addEventListener("click", () => removePlayer(index));
+
+    item.appendChild(number);
+    item.appendChild(name);
+    item.appendChild(removeButton);
+
+    playerList.appendChild(item);
+  });
 }
 
 /* =============================================
@@ -616,9 +722,6 @@ function doReveal() {
   showScreen("result-screen");
 }
 
-document.getElementById("popup-overlay").addEventListener("click", function(e) {
-  if (e.target === this) closePopup();
-});
 
 /* =============================================
    GAME SCREEN

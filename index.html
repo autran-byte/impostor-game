@@ -16,7 +16,7 @@
   <p style="color:var(--muted);text-align:center;max-width:400px;line-height:1.6;margin-bottom:2rem;font-size:0.95rem">
     Um jogador nao sabe a palavra senha. Descubra quem e o impostor &mdash; ou o seja.
   </p>
-  <button class="btn btn-primary" onclick="showScreen('setup-screen')">Comecar Jogo</button>
+  <button class="btn btn-primary" id="btn-go-setup">Comecar Jogo</button>
 </div>
 
 <!-- SETUP -->
@@ -28,8 +28,8 @@
         <label>Jogadores</label>
         <div class="player-list" id="player-list"></div>
         <div class="add-row mt1">
-          <input type="text" id="new-player-name" placeholder="Nome do jogador..." onkeydown="if(event.key==='Enter')addPlayer()">
-          <button class="btn btn-secondary btn-sm" onclick="addPlayer()">+ Adicionar</button>
+          <input type="text" id="new-player-name" placeholder="Nome do jogador...">
+<button class="btn btn-secondary btn-sm" id="btn-add-player">+ Adicionar</button>
         </div>
       </div>
       <div>
@@ -42,8 +42,8 @@
       </div>
     </div>
     <div class="flex gap mt2" style="justify-content:flex-end">
-      <button class="btn btn-secondary" onclick="showScreen('home-screen')">Voltar</button>
-      <button class="btn btn-primary" onclick="startGame()">Distribuir Cartas &rarr;</button>
+      <button class="btn btn-secondary" id="btn-back-home">Voltar</button>
+<button class="btn btn-primary" id="btn-start-game">Distribuir Cartas &rarr;</button>
     </div>
   </div>
 </div>
@@ -68,14 +68,14 @@
   </div>
 
   <div class="password-card-wrap">
-    <div class="password-card" onclick="askReveal()">
+    <div class="password-card" id="password-card">
       <div class="password-card-logo">?</div>
       <div class="password-card-hint">Toque para revelar</div>
     </div>
   </div>
 
   <div class="flex gap mt2" style="justify-content:center;flex-wrap:wrap">
-    <button class="btn btn-secondary" onclick="showGameScreen()">Comecar Rodada &rarr;</button>
+    <button class="btn btn-secondary" id="btn-start-round">Comecar Rodada &rarr;</button>
   </div>
   <p class="hint mt1">Revele a senha quando o jogo acabar</p>
 </div>
@@ -88,9 +88,9 @@
   </div>
   <div class="turn-list" id="turn-list"></div>
   <div class="flex gap mt2" style="justify-content:center;flex-wrap:wrap">
-    <button class="btn btn-secondary" id="btn-prev-turn" onclick="prevTurn()" style="display:none">&larr; Volta</button>
-    <button class="btn btn-primary" id="btn-next-turn" onclick="nextTurn()">Proximo &rarr;</button>
-    <button class="btn btn-secondary" onclick="showPasswordScreen()">Revelar Senha</button>
+    <button class="btn btn-secondary" id="btn-prev-turn" style="display:none">&larr; Volta</button>
+<button class="btn btn-primary" id="btn-next-turn">Proximo &rarr;</button>
+<button class="btn btn-secondary" id="btn-show-password">Revelar Senha</button>
   </div>
   <p class="hint mt1">Cada jogador diz uma dica sobre a palavra sem revela-la</p>
 </div>
@@ -108,8 +108,8 @@
       <div class="rv impostor-was" id="result-impostor"></div>
     </div>
     <div class="flex gap" style="justify-content:center;flex-wrap:wrap">
-      <button class="btn btn-secondary" onclick="resetGame()">Menu</button>
-      <button class="btn btn-primary" onclick="startGame()">Jogar Novamente &#8635;</button>
+      <button class="btn btn-secondary" id="btn-reset-game">Menu</button>
+<button class="btn btn-primary" id="btn-play-again">Jogar Novamente &#8635;</button>
     </div>
   </div>
 </div>
@@ -120,8 +120,8 @@
     <div class="popup-title">Revelar a senha?</div>
     <div class="popup-sub">Todos os jogadores devem estar prontos</div>
     <div class="popup-btns">
-      <button class="popup-no"  onclick="closePopup()">N&atilde;o</button>
-      <button class="popup-yes" onclick="doReveal()">Sim</button>
+      <button class="popup-no" id="btn-popup-no">N&atilde;o</button>
+<button class="popup-yes" id="btn-popup-yes">Sim</button>
     </div>
   </div>
 </div>
