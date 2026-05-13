@@ -1,12 +1,9 @@
 /* =============================================
    SUPABASE CONFIG
 ============================================= */
-const SUPABASE_URL = "https://lyskoeoxbnmdmbfwzbdy.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_N8h3RyIeZlyjAoBohPZfDg_F-6_BNuZ";
-
 const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
+  APP_CONFIG.SUPABASE_URL,
+  APP_CONFIG.SUPABASE_PUBLISHABLE_KEY
 );
 
 /* =============================================
@@ -318,33 +315,40 @@ function renderDeckLoading(message = "Carregando...") {
 }
 
 async function loadDecksFromSupabase() {
-  const { data: decks, error: decksError } = await supabaseClient
+  const decksResponse = await supabaseClient
     .from("decks")
     .select("id, name, icon, is_custom, sort_order")
     .order("sort_order", { ascending: true });
 
-  if (decksError) throw decksError;
+  console.log("Resposta decks:", decksResponse);
 
-  const { data: words, error: wordsError } = await supabaseClient
+  if (decksResponse.error) {
+    throw decksResponse.error;
+  }
+
+  const wordsResponse = await supabaseClient
     .from("words")
     .select("deck_id, word, sort_order")
     .order("sort_order", { ascending: true });
 
-  if (wordsError) throw wordsError;
+  console.log("Resposta words:", wordsResponse);
 
-  if (!Array.isArray(decks)) {
-    throw new Error("Resposta inválida da tabela decks.");
+  if (wordsResponse.error) {
+    throw wordsResponse.error;
   }
 
-  if (!Array.isArray(words)) {
-    throw new Error("Resposta inválida da tabela words.");
+  const decks = decksResponse.data || [];
+  const words = wordsResponse.data || [];
+
+  if (decks.length === 0) {
+    throw new Error("Supabase retornou zero baralhos na tabela decks.");
   }
 
   DECKS = decks.map(deck => {
     const deckWords = words
-      .filter(item => item.deck_id === deck.id)
+      .filter(wordItem => wordItem.deck_id === deck.id)
       .sort((a, b) => a.sort_order - b.sort_order)
-      .map(item => item.word)
+      .map(wordItem => wordItem.word)
       .filter(Boolean);
 
     return {
@@ -355,6 +359,8 @@ async function loadDecksFromSupabase() {
       words: deckWords
     };
   });
+
+  console.log("DECKS montado:", DECKS);
 }
 
 function renderDecks() {
