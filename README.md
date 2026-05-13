@@ -19,28 +19,15 @@ impostor-game-separated/
 └── .gitignore
 ```
 
-## Como rodar localmente
-
-Como o projeto ainda é HTML, CSS e JS puro, basta abrir o arquivo `index.html` no navegador.
-
-Também é possível rodar com uma extensão como **Live Server** no VS Code.
-
 ## Próximas etapas
 
-- Criar projeto no Supabase
-- Rodar o schema SQL
+- Rodar o schema SQL para seleção de decks e palavra chave
 - Popular os baralhos atuais no banco
 - Trocar o array `DECKS` por `fetch`
 - Adicionar estado de carregamento
-- Publicar no Netlify
-- Configurar variáveis de ambiente no Netlify
 
 ## Tecnologias
 
 - HTML5
 - CSS3
 - JavaScript puro
-
-## Observação
-
-Neste momento, os baralhos ainda estão definidos localmente dentro do arquivo `script.js`.
