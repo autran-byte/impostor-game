@@ -109,6 +109,10 @@ function setupEventListeners() {
   const btnDeckConfirmNo = document.getElementById("btn-deck-confirm-no");
   const btnDeckConfirmYes = document.getElementById("btn-deck-confirm-yes");
   const deckConfirmOverlay = document.getElementById("deck-confirm-overlay");
+  const btnOpenRules = document.getElementById("btn-open-rules");
+  const btnCloseRules = document.getElementById("btn-close-rules");
+  const btnCloseRulesX = document.getElementById("btn-close-rules-x");
+  const rulesOverlay = document.getElementById("rules-overlay");
 
   if (btnGoSetup) {
     btnGoSetup.addEventListener("click", () => showScreen("setup-screen"));
@@ -201,6 +205,31 @@ function setupEventListeners() {
       }
     });
   }
+  if (btnOpenRules) {
+    btnOpenRules.addEventListener("click", openRulesSplash);
+  }
+  
+  if (btnCloseRules) {
+    btnCloseRules.addEventListener("click", closeRulesSplash);
+  }
+  
+  if (btnCloseRulesX) {
+    btnCloseRulesX.addEventListener("click", closeRulesSplash);
+  }
+  
+  if (rulesOverlay) {
+    rulesOverlay.addEventListener("click", event => {
+      if (event.target === rulesOverlay) {
+        closeRulesSplash();
+      }
+    });
+  }
+  
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeRulesSplash();
+    }
+  });
 }
 
 function validateSupabaseClient() {
@@ -927,6 +956,23 @@ function prevTurn() {
 /* =============================================
    UTILS
 ============================================= */
+function openRulesSplash() {
+  const overlay = document.getElementById("rules-overlay");
+
+  if (!overlay) return;
+
+  overlay.classList.add("show");
+  document.body.classList.add("modal-open");
+}
+
+function closeRulesSplash() {
+  const overlay = document.getElementById("rules-overlay");
+
+  if (!overlay) return;
+
+  overlay.classList.remove("show");
+  document.body.classList.remove("modal-open");
+}
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(screen => {
     screen.classList.remove("active");
