@@ -25,13 +25,17 @@
     </div>
 
     <div class="sep"></div>
-
+<!-- 
     <p class="home-description">
       Um jogador não sabe a palavra senha. Descubra quem é o impostor — ou o seja.
-    </p>
+    </p>-->
 
     <button class="btn btn-primary" id="btn-go-setup">
       Começar Jogo
+    </button>
+     
+    <button class="how-to-play-link" id="btn-open-rules">
+    Aprenda a jogar clicando aqui.
     </button>
   </div>
 
@@ -253,7 +257,79 @@
       </div>
     </div>
   </div>
+  <!-- RULES SPLASH -->
+<div class="rules-overlay" id="rules-overlay">
+  <div class="rules-box">
+    <button class="rules-close-x" id="btn-close-rules-x" aria-label="Fechar regras">
+      &times;
+    </button>
 
+    <div class="rules-kicker">Como jogar</div>
+    <div class="rules-title">IMPOSTOR</div>
+
+    <p class="rules-intro">
+      Em cada rodada, quase todos os jogadores recebem a mesma palavra secreta. Um ou mais jogadores recebem apenas a carta de IMPOSTOR e precisam fingir que sabem qual é a palavra.
+    </p>
+    
+    <div class="rules-list">
+      <div class="rules-item">
+        <span class="rules-number">1</span>
+        <div>
+          <strong>Prepare a rodada</strong>
+          <p>Adicione pelo menos 3 jogadores, escolha quantos impostores haverá e selecione um baralho de palavras.</p>
+        </div>
+      </div>
+    
+      <div class="rules-item">
+        <span class="rules-number">2</span>
+        <div>
+          <strong>Cada jogador vê sua carta em segredo</strong>
+          <p>Quem receber a palavra deve memorizá-la sem mostrar para ninguém. Quem receber “IMPOSTOR” não saberá a palavra e terá que improvisar.</p>
+        </div>
+      </div>
+    
+      <div class="rules-item">
+        <span class="rules-number">3</span>
+        <div>
+          <strong>A rodada de pistas começa</strong>
+          <p>Depois que todos virem suas cartas, um jogador começa falando algo relacionado à palavra secreta. Pode ser uma dica, uma associação, uma sensação, um lugar, uma característica ou uma frase curta.</p>
+        </div>
+      </div>
+    
+      <div class="rules-item">
+        <span class="rules-number">4</span>
+        <div>
+          <strong>O impostor tenta embarcar na brincadeira</strong>
+          <p>O impostor precisa ouvir as pistas dos outros e falar algo que pareça fazer sentido, sem deixar claro que está perdido. Os outros jogadores tentam perceber quem está blefando.</p>
+        </div>
+      </div>
+    
+      <div class="rules-item">
+        <span class="rules-number">5</span>
+        <div>
+          <strong>Quando acharem que sabem, parem e votem</strong>
+          <p>A rodada continua até os jogadores decidirem que já têm suspeitos suficientes. Nesse momento, parem a rodada e todos votam em quem acreditam ser o impostor.</p>
+        </div>
+      </div>
+    
+      <div class="rules-item">
+        <span class="rules-number">6</span>
+        <div>
+          <strong>Cuidado: o impostor ainda pode vencer</strong>
+          <p>Se os jogadores acertarem quem é o impostor, ele ainda tem uma última chance: tentar adivinhar a palavra secreta. Se acertar, o impostor vence. Se errar, os outros jogadores vencem.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="rules-tip">
+      <strong>Dica:</strong> se você sabe a palavra, dê uma pista boa, mas não óbvia demais. Se você é o impostor, preste atenção no padrão das pistas e tente parecer confiante.
+    </div>
+
+    <button class="btn btn-primary rules-close-btn" id="btn-close-rules">
+      Entendi, vamos jogar
+    </button>
+  </div>
+</div>
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
