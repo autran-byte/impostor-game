@@ -1,5 +1,5 @@
 /* =============================================
-   DECKS
+   SUPABASE CONFIG
 ============================================= */
 const SUPABASE_URL = "https://lyskoeoxbnmdmbfwzbdy.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_N8h3RyIeZlyjAoBohPZfDg_F-6_BNuZ";
@@ -8,6 +8,21 @@ const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
+
+/* =============================================
+   FALLBACK LOCAL
+   usado se o Supabase falhar
+============================================= */
+const LOCAL_DECKS = [
+  { id:'animais',    name:'Animais',        icon:'🦁', words:['Elefante','Tubarao','Papagaio','Coruja','Cobra','Gorila','Pinguim','Camelo','Hipopotamo','Pantera'] },
+  { id:'comidas',    name:'Comidas',        icon:'🍕', words:['Pizza','Sushi','Lasanha','Hamburguer','Tapioca','Feijoada','Risoto','Ramen','Brigadeiro','Pastel'] },
+  { id:'esportes',   name:'Esportes',       icon:'⚽', words:['Futebol','Natacao','Judo','Volei','Ciclismo','Boxe','Basquete','Tenis','Polo Aquatico','Esgrima'] },
+  { id:'filmes',     name:'Filmes e Series',icon:'🎬', words:['Matrix','Titanic','Breaking Bad','Avatar','Inception','Friends','Stranger Things','Interstellar','Coco','Parasita'] },
+  { id:'profissoes', name:'Profissoes',     icon:'💼', words:['Astronauta','Cirurgiao','Arqueologo','Diplomata','Sommelier','Mergulhador','Relojoeiro','Ilusionista','Cartografo','Chocolatier'] },
+  { id:'lugares',    name:'Lugares',        icon:'🌍', words:['Amazonia','Dubai','Antartida','Veneza','Toquio','Machu Picchu','Las Vegas','Islandia','Maldivas','Petra'] },
+  { id:'objetos',    name:'Objetos',        icon:'🔑', words:['Telescopio','Bussola','Metronomo','Caleidoscopio','Sextante','Termometro','Periscopio','Abajur','Relogio de Sol','Pendulo'] },
+  { id:'custom',     name:'Personalizado',  icon:'✏️', words:[], custom:true }
+];
 
 let DECKS = [];
 
@@ -26,21 +41,66 @@ let drag = { active: false, startX: 0, startY: 0, curX: 0, revealed: false };
 /* =============================================
    INIT
 ============================================= */
-function init() {
-  const grid = document.getElementById('deck-grid');
-  grid.innerHTML = DECKS.map(d =>
-    '<div class="deck-card" data-id="' + d.id + '" onclick="selectDeck(\'' + d.id + '\')">' +
-    '<div class="deck-icon">' + d.icon + '</div>' +
-    '<div class="deck-name">' + d.name + '</div>' +
-    '<div class="deck-count">' + (d.custom ? 'Sua escolha' : d.words.length + ' palavras') + '</div>' +
-    '</div>'
-  ).join('');
+async function init() {
+  renderDeckLoading();
+
+  try {
+    await loadDecksFromSupabase();
+  } catch (error) {
+    console.error("Erro ao carregar baralhos do Supabase:", error);
+    DECKS = LOCAL_DECKS;
+    toast("Falha ao carregar Supabase. Usando baralhos locais.");
+  }
+
+  renderDecks();
 }
 
-function selectDeck(id) {
-  state.selectedDeck = id;
-  document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector('.deck-card[data-id="' + id + '"]').classList.add('selected');
+function renderDeckLoading() {
+  const grid = document.getElementById('deck-grid');
+
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:1rem;">
+      Carregando baralhos...
+    </div>
+  `;
+}
+
+async function loadDecksFromSupabase() {
+  const { data: decks, error: decksError } = await supabaseClient
+    .from('decks')
+    .select('id, name, icon, is_custom, sort_order')
+    .order('sort_order', { ascending: true });
+
+  if (decksError) throw decksError;
+
+  const { data: words, error: wordsError } = await supabaseClient
+    .from('words')
+    .select('deck_id, word, sort_order')
+    .order('sort_order', { ascending: true });
+
+  if (wordsError) throw wordsError;
+
+  DECKS = decks.map(deck => ({
+    id: deck.id,
+    name: deck.name,
+    icon: deck.icon,
+    custom: deck.is_custom,
+    words: words
+      .filter(item => item.deck_id === deck.id)
+      .map(item => item.word)
+  }));
+}
+
+function renderDecks() {
+  const grid = document.getElementById('deck-grid');
+
+  grid.innerHTML = DECKS.map(d =>
+    '<div class="deck-card" data-id="' + d.id + '" onclick="selectDeck(\'' + d.id + '\')">' +
+      '<div class="deck-icon">' + d.icon + '</div>' +
+      '<div class="deck-name">' + d.name + '</div>' +
+      '<div class="deck-count">' + (d.custom ? 'Sua escolha' : d.words.length + ' palavras') + '</div>' +
+    '</div>'
+  ).join('');
 }
 
 /* =============================================
