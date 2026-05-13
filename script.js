@@ -248,9 +248,9 @@ function renderDeckLoading(message = "Carregando...") {
 async function loadDecksFromSupabase() {
   const decksResponse = await supabaseClient
     .from("decks")
-    .select("id, name, icon, is_custom, sort_order")
+    .select("id, name, icon, is_custom, sort_order, is_active")
+    .eq("is_active", true)
     .order("sort_order", { ascending: true });
-
   console.log("Resposta decks:", decksResponse);
 
   if (decksResponse.error) {
