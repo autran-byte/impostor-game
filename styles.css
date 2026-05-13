@@ -1,0 +1,282 @@
+:root {
+    --bg: #0e0c0a;
+    --surface: #1a1714;
+    --card: #211e1a;
+    --border: #3a3530;
+    --accent: #e8b84b;
+    --accent2: #c0392b;
+    --text: #f0ece4;
+    --muted: #8a8178;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(232,184,75,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(192,57,43,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+
+  /* LOGO */
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    letter-spacing: 0.08em; line-height: 0.9;
+    color: var(--accent);
+    text-shadow: 0 0 80px rgba(232,184,75,0.3);
+    text-align: center;
+  }
+  .logo span {
+    display: block; font-size: 0.32em; letter-spacing: 0.35em;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-weight: 300; text-transform: uppercase; margin-top: 0.4em;
+  }
+
+  /* BUTTONS */
+  .btn { cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; border-radius: 4px; }
+  .btn-primary { background: var(--accent); color: #0e0c0a; padding: 1rem 2.5rem; font-size: 1rem; box-shadow: 0 0 30px rgba(232,184,75,0.2); }
+  .btn-primary:hover { background: #f0c85a; transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--muted); padding: 0.8rem 2rem; font-size: 0.875rem; border: 1px solid var(--border); }
+  .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.8rem; }
+
+  /* PANEL */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; width: 100%; max-width: 560px; }
+  .panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 1.5rem; }
+
+  /* SETUP */
+  .setup-grid { display: flex; flex-direction: column; gap: 1.2rem; }
+  label { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.4rem; }
+  input[type="text"], input[type="number"] { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.75rem 1rem; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 1rem; transition: border-color 0.2s; }
+  input:focus { outline: none; border-color: var(--accent); }
+  input[type="number"] { width: 100px; }
+  .player-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+  .player-item { display: flex; align-items: center; gap: 0.75rem; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.95rem; }
+  .player-item .num { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--muted); min-width: 24px; }
+  .player-item .name { flex: 1; }
+  .player-item .remove { cursor: pointer; font-size: 1.2rem; line-height: 1; background: none; border: none; color: var(--muted); transition: color 0.2s; }
+  .player-item .remove:hover { color: var(--accent2); }
+  .add-row { display: flex; gap: 0.75rem; }
+  .add-row input { flex: 1; }
+
+  /* DECK */
+  .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+  .deck-card { background: var(--card); border: 2px solid var(--border); border-radius: 8px; padding: 1rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .deck-card:hover { border-color: var(--muted); }
+  .deck-card.selected { border-color: var(--accent); background: rgba(232,184,75,0.07); }
+  .deck-card .deck-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .deck-card .deck-name { font-size: 0.85rem; font-weight: 500; }
+  .deck-card .deck-count { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* =========================================
+     REVEAL SCREEN
+  ========================================= */
+  #reveal-screen { background: var(--bg); user-select: none; -webkit-user-select: none; overflow: hidden; }
+  .reveal-header { text-align: center; margin-bottom: 1.25rem; }
+  .reveal-player-name { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); }
+
+  .progress-dots { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.25rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+  .dot.done { background: var(--muted); }
+  .dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .card-stage { width: 280px; height: 390px; position: relative; margin: 0 auto; flex-shrink: 0; }
+
+  /* SWIPE CARD */
+  .swipe-card {
+    position: absolute; inset: 0;
+    border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem;
+    touch-action: none; will-change: transform;
+    background: var(--card); border: 2px solid var(--border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+    cursor: pointer;
+  }
+  .card-back-content { display: flex; flex-direction: column; align-items: center; gap: 1rem; pointer-events: none; }
+  .card-back-logo { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--border); letter-spacing: 0.1em; line-height: 1; }
+  .card-tap-hint { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .card-front-content {
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; pointer-events: none;
+    animation: fadeReveal 0.3s ease forwards;
+  }
+  @keyframes fadeReveal {
+    from { opacity: 0; transform: scale(0.93); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .swipe-card.revealed .card-back-content { display: none; }
+  .swipe-card.revealed .card-front-content { display: flex; }
+  .swipe-card.revealed.card-word-style {
+    background: #1c1a10; border-color: var(--accent);
+    box-shadow: 0 24px 64px rgba(232,184,75,0.18), inset 0 0 60px rgba(232,184,75,0.05);
+    cursor: grab;
+  }
+  .swipe-card.revealed.card-impostor-style {
+    background: #1a0f0f; border-color: var(--accent2);
+    box-shadow: 0 24px 64px rgba(192,57,43,0.22), inset 0 0 60px rgba(192,57,43,0.06);
+    cursor: grab;
+  }
+  .swipe-card.revealed:active { cursor: grabbing; }
+
+  .card-role-label { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 1.25rem; }
+  .card-word-style .card-role-label { color: rgba(232,184,75,0.5); }
+  .card-impostor-style .card-role-label { color: rgba(192,57,43,0.65); }
+  .card-word-text { font-family: 'DM Serif Display', serif; font-size: 2.5rem; text-align: center; line-height: 1.2; }
+  .card-word-style .card-word-text { color: var(--accent); }
+  .card-impostor-style .card-word-text { color: var(--accent2); font-style: italic; font-size: 2.9rem; }
+  .card-subtitle-text { font-size: 0.78rem; color: var(--muted); margin-top: 1rem; text-align: center; line-height: 1.55; }
+  .card-corner { position: absolute; font-size: 1.4rem; }
+  .card-corner.tl { top: 1rem; left: 1.1rem; }
+  .card-corner.br { bottom: 1rem; right: 1.1rem; }
+
+  .swipe-hint {
+    display: flex; align-items: center; gap: 0.6rem;
+    color: var(--muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+    opacity: 0; transition: opacity 0.4s; margin-top: 1.25rem;
+  }
+  .swipe-hint.visible { opacity: 1; }
+
+  /* =========================================
+     PASSWORD CARD (face-down, upside-down)
+  ========================================= */
+  .password-card-wrap {
+    animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px) rotate(180deg); }
+    to   { opacity: 1; transform: translateY(0)   rotate(180deg); }
+  }
+  .password-card {
+    width: 280px; height: 390px;
+    border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--card); border: 2px solid var(--border);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    gap: 1rem;
+  }
+  .password-card:hover {
+    border-color: var(--muted);
+    box-shadow: 0 28px 72px rgba(0,0,0,0.65);
+  }
+  .password-card-logo { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--border); letter-spacing: 0.1em; line-height: 1; }
+  .password-card-hint { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* =========================================
+     CONFIRM POPUP
+  ========================================= */
+  .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .popup-overlay.show { opacity: 1; pointer-events: all; }
+
+  .popup-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    text-align: center;
+    max-width: 320px; width: 90%;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    transform: scale(0.9);
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .popup-overlay.show .popup-box { transform: scale(1); }
+
+  .popup-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem; color: var(--text);
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+  .popup-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.75rem; }
+
+  .popup-btns { display: flex; gap: 0.75rem; justify-content: center; }
+  .popup-yes {
+    background: var(--accent); color: #0e0c0a;
+    border: none; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif; font-weight: 600;
+    font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.8rem 1.75rem; cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .popup-yes:hover { background: #f0c85a; transform: translateY(-1px); }
+  .popup-no {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+    font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.8rem 1.75rem; cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .popup-no:hover { color: var(--text); border-color: var(--muted); }
+
+  /* =========================================
+     GAME SCREEN
+  ========================================= */
+  .game-info { text-align: center; margin-bottom: 2rem; }
+  .game-round { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.2em; color: var(--muted); }
+  .game-category { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  .turn-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 480px; }
+  .turn-item { display: flex; align-items: center; gap: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; transition: all 0.3s; }
+  .turn-item.active { border-color: var(--accent); background: rgba(232,184,75,0.05); box-shadow: 0 0 20px rgba(232,184,75,0.08); }
+  .turn-item.done { opacity: 0.45; }
+  .turn-number { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--muted); min-width: 28px; }
+  .turn-name { flex: 1; font-size: 1rem; }
+  .turn-status { font-size: 0.8rem; }
+  .turn-item.active .turn-status { color: var(--accent); }
+  .turn-item.done .turn-status { color: var(--muted); }
+
+  /* RESULT */
+  .result-box { text-align: center; max-width: 480px; }
+  .result-verdict { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 8vw, 5rem); letter-spacing: 0.08em; line-height: 1; margin-bottom: 0.5rem; }
+  .result-verdict.win { color: var(--accent); text-shadow: 0 0 60px rgba(232,184,75,0.3); }
+  .result-verdict.lose { color: var(--accent2); text-shadow: 0 0 60px rgba(192,57,43,0.3); }
+  .result-sub { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--muted); margin-bottom: 2rem; }
+  .result-reveal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+  .result-reveal .rl { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .result-reveal .rv { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--text); margin-top: 0.25rem; }
+  .rv.impostor-was { color: var(--accent2); }
+  .rv.word-was { color: var(--accent); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.5rem; font-size: 0.9rem; color: var(--text); transition: transform 0.3s; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* MISC */
+  .sep { width: 40px; height: 2px; background: var(--border); margin: 1.5rem auto; }
+  .mt1 { margin-top: 1rem; }
+  .mt2 { margin-top: 2rem; }
+  .gap { gap: 1rem; }
+  .flex { display: flex; }
+  .w100 { width: 100%; max-width: 560px; }
+  .hint { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: 0.5rem; }
+
+  @media (max-width: 480px) {
+    .screen.active { padding: 1rem; }
+    .card-stage { width: 240px; height: 330px; }
+    .password-card { width: 240px; height: 330px; }
+  }
