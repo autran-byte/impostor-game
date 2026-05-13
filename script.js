@@ -1,16 +1,15 @@
 /* =============================================
    DECKS
 ============================================= */
-const DECKS = [
-  { id:'animais',    name:'Animais',        icon:'&#129409;', words:['Elefante','Tubarao','Papagaio','Coruja','Cobra','Gorila','Pinguim','Camelo','Hipopotamo','Pantera'] },
-  { id:'comidas',    name:'Comidas',        icon:'&#127829;', words:['Pizza','Sushi','Lasanha','Hamburguer','Tapioca','Feijoada','Risoto','Ramen','Brigadeiro','Pastel'] },
-  { id:'esportes',   name:'Esportes',       icon:'&#9917;',   words:['Futebol','Natacao','Judo','Volei','Ciclismo','Boxe','Basquete','Tenis','Polo Aquatico','Esgrima'] },
-  { id:'filmes',     name:'Filmes e Series',icon:'&#127916;', words:['Matrix','Titanic','Breaking Bad','Avatar','Inception','Friends','Stranger Things','Interstellar','Coco','Parasita'] },
-  { id:'profissoes', name:'Profissoes',     icon:'&#128188;', words:['Astronauta','Cirurgiao','Arqueologo','Diplomata','Sommelier','Mergulhador','Relojoeiro','Ilusionista','Cartografo','Chocolatier'] },
-  { id:'lugares',    name:'Lugares',        icon:'&#127757;', words:['Amazonia','Dubai','Antartida','Veneza','Toquio','Machu Picchu','Las Vegas','Islandia','Maldivas','Petra'] },
-  { id:'objetos',    name:'Objetos',        icon:'&#128273;', words:['Telescopio','Bussola','Metronomo','Caleidoscopio','Sextante','Termometro','Periscopio','Abajur','Relogio de Sol','Pendulo'] },
-  { id:'custom',     name:'Personalizado',  icon:'&#9999;',   words:[], custom:true }
-];
+const SUPABASE_URL = "https://lyskoeoxbnmdmbfwzbdy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_N8h3RyIeZlyjAoBohPZfDg_F-6_BNuZ";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let DECKS = [];
 
 /* =============================================
    STATE
